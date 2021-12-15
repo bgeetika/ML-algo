@@ -1,0 +1,48 @@
+'''
+k means
+computattional complexity: O(num_iterations*k*d)
+
+'''
+import collections
+import numpy as np
+
+def _cluster(X, centroids):
+    '''
+    n*4 -> k*4
+    '''
+    clusters = {}
+    for x in X:
+        x = x.reshape(1,-1)
+        cols = x.shape[1]
+        sub = x - centroids
+        dist = np.sum(np.square(sub), axis= 1)
+        index = int(np.argmin(dist))
+        sum_so_far, count_so_far = clusters.setdefault(index, (np.zeros((1,cols)),0))
+        sum_so_far = sum_so_far + x
+        count_so_far += 1
+        clusters[index] = (sum_so_far, count_so_far)
+    return clusters
+          
+def _recalc_centers(clusters):
+    mus = []
+    keys = sorted(clusters.keys())
+    for k in keys: 
+        mus.append(clusters[k][0]/clusters[k][1])
+    return np.asarray(mus).reshape(len(clusters), -1)
+            
+    
+def kmeans(X, k):
+    centroids= X[np.random.choice(X.shape[0],k, False)]
+    max_iterations = 10
+    
+    for _ in range(max_iterations):
+        prev_centroids = centroids
+        clusters = _cluster(X, centroids)
+        centroids = _recalc_centers(clusters)
+    return centroids
+
+x = np.random.randn(5,4)
+k = 3
+print kmeans(x, k)
+
+
