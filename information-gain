@@ -1,0 +1,80 @@
+'''
+X1            X2            Y
+2.771244718        1.784783929        0
+1.728571309        1.169761413        0
+3.678319846        2.81281357        0
+3.961043357        2.61995032        0
+2.999208922        2.209014212        0
+7.497545867        3.162953546        1
+9.00220326        3.339047188        1
+7.444542326        0.476683375        1
+10.12493903        3.234550982        1
+6.642287351        3.319983761        1
+'''
+import numpy as np
+dataset = [[3.6216,8.6661,0],
+[4.5459,8.1674,0],
+[3.866,-2.6383,1],
+[3.4566,9.5228,1],
+[0.32924,-4.4552,1],
+[4.3684,9.6718,0]]
+
+def entropy(dataset, classes):
+    totalN = len(dataset)
+    e = 0
+    for val in classes:
+        count = 0
+        for item in dataset:
+            if item[2] == val:
+                count += 1
+        frac = count / totalN
+        #if frac =0, there is a perfect split, and e=0. don't add anything to 
+        if frac == 0:
+            continue
+        e += -frac*np.log(frac)
+    return e
+
+def info_gain(groups,classes, entropyBefore):
+    lengths= [len(group) for group in groups]
+    totalN = float(sum(lengths))
+    entropyAfter = 0
+    for idx,group in enumerate(groups):
+        thisN = lengths[idx]
+        if thisN == 0:
+            continue
+        thisEntropy = entropy(group,classes)
+        #weighted average of the entropy of each group
+        entropyAfter += thisEntropy * (thisN/totalN)
+    gain = entropyBefore - entropyAfter
+    return gain, entropyAfter
+
+    # Split a dataset based on an attribute and an attribute value
+def test_split(index, value, dataset):
+    left, right = list(), list()
+    for row in dataset:
+        if row[index] < value:  
+            left.append(row)
+        else:
+            right.append(row)
+    return left, right
+
+
+# Select the best split point for a dataset
+def get_split(dataset):
+    class_values = list(set(row[-1] for row in dataset))
+    b_index, b_value, b_score, b_groups = 0, 0, 0, None
+    before_entropy = entropy(dataset, class_values)
+    for index in range(len(dataset[0])-1):
+        # comment. This is O(n^2) as you loop over dataset here and then again inside test_split.
+        # Could instead do dp. sort by the feature value and then just track counts of group sizes.
+        for row in dataset:
+            groups = test_split(index, row[index], dataset)
+            print groups, len(groups), class_values
+            infoGain, entropy_after = info_gain(groups, class_values, before_entropy)
+            if infoGain > b_score: #keep highest infoGain value
+                b_index, b_value, b_score, b_groups = index, row[index], infoGain, groups
+            before_entropy = entropy_after
+        
+    return {'index':b_index, 'value':b_value, 'groups':b_groups}
+
+print get_split(dataset)
