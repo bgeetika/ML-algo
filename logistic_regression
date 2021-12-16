@@ -1,0 +1,35 @@
+'''
+logistic regression
+'''
+import numpy as np
+
+def sigmoid(x):
+    return 1.0/1+ np.exp(-x)
+
+def cost_function(x, y, theta, m):
+    h = sigmoid(np.dot(x, theta))
+    J = (1.0/m) * np.sum( -y * np.log(h) - (1.0 - y) * np.log(1.0 - h))
+    return J
+
+def gradients(x, y, theta, m):
+    h = sigmoid(np.dot(x, theta))
+    return (1.0 /m) * np.dot(x.T, (h-y))
+
+def logistic_regression(X, Y):
+    max_it = 10
+    alpha = 0.1
+    cost = []
+    print X.shape, Y.shape
+    theta = np.random.rand(X.shape[1]) #adding one for b
+    print theta.shape
+    for _ in range(max_it):
+        cost.append(cost_function(X, Y, theta,  X.shape[0]))
+        grads = gradients(X,Y, theta, X.shape[0])
+        theta = theta - alpha * grads
+    print theta
+    return theta
+
+x = np.random.randn(10,2)
+y = np.concatenate([np.ones(5),-np.ones(5)], axis=0).astype(np.int16)
+print logistic_regression(x, y)
+#print x, y
