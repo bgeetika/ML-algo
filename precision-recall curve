@@ -1,0 +1,29 @@
+Def precision_recall(labels, predictions):
+     labels = [label for _, label in sorted(enumerate(labels), key=lambda i, _: predictions[i])]
+     predictions = sorted(predictions)
+     print(labels, predictions)
+     # this is ground truth.
+     num_positives_so_far = 0
+     num_negatives_so_far = 0
+     total_positives = 0
+     For label in labels:
+         If label == 1:
+            total_positives += 1
+    Total_negatives = len(labels) - total_positives
+
+    recision_recall_pairs = []
+    For i in range(len(labels)):
+       If labels[i] == 1:
+          num_positives_so_far += 1
+       Else:
+          num_negatives += 1
+       # all the predictions <= predictions[i] are deemed to be negatives.
+       false_negatives = num_positives_so_far
+       true_positives =  total_positives - num_positives_so_far
+       false_positives = total_negatives - num_negatives_so_far
+       recall = (1.0*true_positives)/(true_positives+false_negatives)
+       precision = (1.0*true_positives)/(true_positives+false_positives) 
+       recision_recall_pairs.append((recall, precision))
+       
+   return recision_recall_pairs
+      
